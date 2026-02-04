@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Reddit Video Downloader</title>
+</head>
+<body>
+    <h2>Reddit Video Downloader with Instant Preview</h2>
+    <input type="text" id="url" placeholder="Reddit post URL" style="width: 300px;">
+    <button onclick="previewVideo()">Preview</button>
+
+    <div id="preview" style="margin-top:20px;"></div>
+
+    <script>
+        async function previewVideo() {
+            const url = document.getElementById("url").value;
+            const previewDiv = document.getElementById("preview");
+            previewDiv.innerHTML = "Loading...";
+
+            const formData = new FormData();
+            formData.append("url", url);
+
+            const response = await fetch("/get_video", {
+                method: "POST",
+                body: formData
+            });
+
+            const data = await response.json();
+            if (data.error) {
+                previewDiv.innerHTML = "<h3 style='color:red;'>" + data.error + "</h3>";
+                return;
+            }
+
+            previewDiv.innerHTML = `
+                <h3>${data.title}</h3>
+                <video width="480" controls>
+                    <source src="${data.video_path}" type="video/mp4">
+                </video>
+                <br>
+                <a href="${data.download_path}"><button>Download Video</button></a>
+            `;
+        }
+    </script>
+</body>
+</html>
